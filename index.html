@@ -206,6 +206,54 @@ p, li, summary { text-wrap: pretty; }
   .horizon { height: 28px; margin-top: 16px; }
 }
 
+/* «Опиши героя, и звёзды его нарисуют»: продолжение ночного неба под первым экраном */
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.draw { background: var(--night); color: #fff; padding-top: clamp(24px, 3vw, 48px); }
+.draw__grid {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 32px;
+  grid-template-areas: "intro intro intro intro intro screen screen screen screen screen screen screen"
+                       "form  form  form  form  form  screen screen screen screen screen screen screen";
+  grid-template-rows: auto 1fr;
+}
+.draw__intro { grid-area: intro; display: grid; gap: 20px; align-content: start; }
+.draw__intro .lead { color: var(--on-dark-2); max-width: 28ch; }
+.draw__screen { grid-area: screen; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.draw__screen canvas { width: 100%; aspect-ratio: 3 / 2; background: #060B2A; }
+.draw__step { font-weight: 600; font-size: var(--size-small); color: var(--accent); font-variant-numeric: tabular-nums; }
+.draw__form { grid-area: form; display: grid; gap: 18px; align-content: start; justify-items: start; min-width: 0; }
+
+.draw-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.draw-chips legend { float: left; width: 100%; margin-bottom: 8px; padding: 0; font-weight: 600; font-size: var(--size-small); color: var(--on-dark-2); }
+.draw-chip { position: relative; cursor: pointer; }
+.draw-chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.draw-chip span {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+  border: 1px solid rgba(143, 184, 255, .35); color: #fff;
+  font-weight: 600; font-size: var(--size-small); line-height: 1.2;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.draw-chip:hover span { border-color: var(--accent); }
+.draw-chip input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--night); }
+.draw-chip input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.draw__prompt {
+  min-height: 3.2em; padding: 12px 16px;
+  background: rgba(255, 255, 255, .06); border-left: 3px solid var(--accent);
+  font-size: var(--size-body); line-height: 1.4;
+}
+.draw__prompt [data-draw-prompt]::after { content: ''; display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: -.15em; background: var(--accent); animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.draw__note { font-size: var(--size-small); color: var(--on-dark-2); max-width: 46ch; }
+
+@media (max-width: 900px) {
+  .draw__grid { display: flex; flex-direction: column; gap: 24px; }
+  .draw__form .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .draw__prompt [data-draw-prompt]::after { animation: none; }
+}
+
 /* Маршрут сезона: с ноября по май */
 
 .season { background: var(--paper); padding-bottom: 0; overflow-x: clip; }
@@ -539,6 +587,44 @@ p, li, summary { text-wrap: pretty; }
 </header>
 
 <main>
+  <section class="section draw" id="poprobuy" aria-labelledby="poprobuy-title" data-draw>
+    <div class="wrap draw__grid">
+      <div class="draw__intro">
+        <h2 class="h2" id="poprobuy-title">Опиши героя, и&nbsp;звёзды его нарисуют</h2>
+        <p class="lead">Так нейросеть превращает слова в&nbsp;картинку: начинает с&nbsp;шума и&nbsp;шаг за&nbsp;шагом убирает лишнее.</p>
+      </div>
+      <figure class="draw__screen">
+        <canvas data-draw-canvas role="img" aria-label="Картинка из звёздных точек"></canvas>
+        <p class="draw__step" data-draw-step aria-live="polite">Нажми «Нарисовать»</p>
+        <figcaption class="draw__prompt"><span class="visually-hidden">Запрос: </span><span data-draw-prompt></span></figcaption>
+      </figure>
+      <form class="draw__form" data-draw-form>
+        <fieldset class="draw-chips">
+          <legend>Кто</legend>
+          <label class="draw-chip"><input type="radio" name="who" value="cat"><span>Кот</span></label>
+          <label class="draw-chip"><input type="radio" name="who" value="dragon"><span>Дракон</span></label>
+          <label class="draw-chip"><input type="radio" name="who" value="robot"><span>Робот</span></label>
+          <label class="draw-chip"><input type="radio" name="who" value="saiga" checked><span>Сайгак</span></label>
+        </fieldset>
+        <fieldset class="draw-chips">
+          <legend>Где</legend>
+          <label class="draw-chip"><input type="radio" name="where" value="space"><span>В космосе</span></label>
+          <label class="draw-chip"><input type="radio" name="where" value="ocean"><span>На дне океана</span></label>
+          <label class="draw-chip"><input type="radio" name="where" value="steppe" checked><span>В степи с тюльпанами</span></label>
+          <label class="draw-chip"><input type="radio" name="where" value="elista"><span>У Золотой обители</span></label>
+        </fieldset>
+        <fieldset class="draw-chips">
+          <legend>Как</legend>
+          <label class="draw-chip"><input type="radio" name="style" value="cartoon" checked><span>Мультик</span></label>
+          <label class="draw-chip"><input type="radio" name="style" value="pixel"><span>Пиксели</span></label>
+          <label class="draw-chip"><input type="radio" name="style" value="neon"><span>Неон</span></label>
+        </fieldset>
+        <button class="btn btn--accent" type="submit">Нарисовать</button>
+        <p class="draw__note">Это демонстрация прямо в&nbsp;браузере: картинка собирается из&nbsp;заготовок. На&nbsp;кружке описания пишут сами дети, а&nbsp;рисует настоящая нейросеть.</p>
+      </form>
+    </div>
+  </section>
+
   <section class="section season" id="programma" aria-labelledby="programma-title">
     <div class="wrap">
       <h2 class="h2" id="programma-title" data-reveal>Что ребёнок сделает с&nbsp;ноября по&nbsp;май</h2>
@@ -1041,6 +1127,476 @@ p, li, summary { text-wrap: pretty; }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+
+</script>
+<script>
+// «Опиши героя, и звёзды его нарисуют». Посетитель собирает описание из кнопок, а звёздный шум за 24 шага
+// складывается в картинку: так диффузионная нейросеть рисует по запросу. Настоящей нейросети тут нет:
+// сцена рисуется кодом из заготовок (герой, место, стиль), потом раскладывается на точки, и точки
+// постепенно «очищаются» от шума. Каждый запуск со своим случайным зерном, поэтому картинки чуть разные.
+(function () {
+  'use strict';
+
+  var root = document.querySelector('[data-draw]');
+  if (!root) return;
+  var canvas = root.querySelector('[data-draw-canvas]');
+  var form = root.querySelector('[data-draw-form]');
+  var promptEl = root.querySelector('[data-draw-prompt]');
+  var stepEl = root.querySelector('[data-draw-step]');
+  var button = form.querySelector('button[type="submit"]');
+  if (!canvas.getContext) return;
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var STEPS = 24;
+  var DURATION = 2600;
+  var SW = 600, SH = 400; // сцена рисуется в этом размере, потом сжимается до сетки точек
+  var OUT = '#0A1440';
+  var NEON_BG = '#050A22';
+
+  // ---------- слова запроса ----------
+
+  var WHO = { cat: 'кота', dragon: 'дракона', robot: 'робота', saiga: 'сайгака' };
+  var WHERE = { space: 'в открытом космосе', ocean: 'на дне океана', steppe: 'в степи с тюльпанами',
+    elista: 'у Золотой обители в Элисте' };
+  var STYLE = { cartoon: 'как в мультике', pixel: 'пиксельной графикой', neon: 'неоновыми линиями' };
+
+  function choice() {
+    var data = new FormData(form);
+    return { who: data.get('who'), where: data.get('where'), style: data.get('style') };
+  }
+  function promptText(c) { return 'Нарисуй ' + WHO[c.who] + ' ' + WHERE[c.where] + ', ' + STYLE[c.style]; }
+
+  // ---------- случайность с зерном ----------
+
+  function seeded(seed) {
+    seed = seed % 2147483647 || 1;
+    return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  }
+  function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+  // ---------- кисть: один и тот же рисунок в трёх стилях ----------
+  // мультик: заливка и тёмный контур; пиксели: заливка без контура, потом грубая сетка и мало цветов;
+  // неон: на тёмном фоне только светящиеся линии
+
+  function Brush(ctx, style) {
+    this.ctx = ctx; this.style = style;
+  }
+  Brush.prototype.shape = function (path, fill, glow, outline) {
+    var ctx = this.ctx;
+    if (this.style === 'neon') {
+      if (glow === null) return;
+      ctx.save();
+      ctx.fillStyle = NEON_BG; ctx.fill(path); // то, что позади, не просвечивает сквозь героя
+      ctx.lineWidth = 6; ctx.lineJoin = 'round';
+      ctx.strokeStyle = glow || fill; ctx.shadowColor = glow || fill; ctx.shadowBlur = 16;
+      ctx.stroke(path); ctx.stroke(path);
+      ctx.restore();
+      return;
+    }
+    ctx.fillStyle = fill;
+    ctx.fill(path);
+    if (this.style === 'cartoon' && outline !== false) {
+      ctx.lineWidth = 6; ctx.lineJoin = 'round'; ctx.strokeStyle = OUT;
+      ctx.stroke(path);
+    }
+  };
+  // линия (хвост, стебель, водоросль): в мультике с контуром, в неоне светится
+  Brush.prototype.line = function (path, width, color, glow, outline) {
+    if (outline === undefined) outline = 12;
+    var ctx = this.ctx;
+    ctx.save();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (this.style === 'neon') {
+      if (glow === null) { ctx.restore(); return; }
+      ctx.lineWidth = Math.min(width, 7); ctx.strokeStyle = glow || color; ctx.shadowColor = glow || color; ctx.shadowBlur = 16;
+      ctx.stroke(path); ctx.stroke(path);
+    } else {
+      if (this.style === 'cartoon' && outline) { ctx.lineWidth = width + outline; ctx.strokeStyle = OUT; ctx.stroke(path); }
+      ctx.lineWidth = width; ctx.strokeStyle = color; ctx.stroke(path);
+    }
+    ctx.restore();
+  };
+  Brush.prototype.background = function (stops, neonColor) {
+    var ctx = this.ctx;
+    if (this.style === 'neon') { ctx.fillStyle = neonColor || NEON_BG; ctx.fillRect(0, 0, SW, SH); return; }
+    var g = ctx.createLinearGradient(0, 0, 0, SH);
+    stops.forEach(function (s, i) { g.addColorStop(i / (stops.length - 1), s); });
+    ctx.fillStyle = g; ctx.fillRect(0, 0, SW, SH);
+  };
+
+  function P() { return new Path2D(); }
+  function circle(x, y, r) { var p = P(); p.arc(x, y, r, 0, Math.PI * 2); return p; }
+  function ellipse(x, y, rx, ry, rot) { var p = P(); p.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); return p; }
+  function poly(points) {
+    var p = P();
+    points.forEach(function (pt, i) { if (i) p.lineTo(pt[0], pt[1]); else p.moveTo(pt[0], pt[1]); });
+    p.closePath(); return p;
+  }
+  function rrect(x, y, w, h, r) { var p = P(); p.roundRect(x, y, w, h, r); return p; }
+
+  // ---------- места ----------
+  // каждое место рисует фон и возвращает, где стоит герой
+
+  var PLACES = {
+    space: function (b, rnd) {
+      b.background(['#060B2A', '#14266B', '#2B3F8F']);
+      for (var i = 0; i < 70; i++) {
+        b.shape(circle(rnd() * SW, rnd() * SH, 1.5 + rnd() * 2.5), '#F4F7FC', '#8FB8FF', false);
+      }
+      var px = rnd() < .5 ? 110 : 490, py = 95 + rnd() * 30;
+      b.shape(circle(px, py, 58), '#8FB8FF', '#8FB8FF');
+      if (b.style !== 'neon') {
+        b.ctx.save(); b.ctx.clip(circle(px, py, 58));
+        b.shape(ellipse(px - 10, py - 18, 70, 9, -.2), '#B9CFF7', null, false);
+        b.shape(ellipse(px + 10, py + 16, 70, 11, -.2), '#5E86D6', null, false);
+        b.ctx.restore();
+      }
+      b.line((function () { var p = P(); p.ellipse(px, py, 95, 20, -.2, 0, Math.PI * 2); return p; })(), 7, '#DDE6F5', '#C9A8FF');
+      b.shape(circle(SW - px + (px < 300 ? -40 : 40), 330, 26), '#DDE6F5', '#F4F7FC');
+      return { x: px < 300 ? 345 : 255, y: 225, s: 1, rot: -.08 };
+    },
+    ocean: function (b, rnd) {
+      b.background(['#3E8FD0', '#1D5BA8', '#0B2D6B']);
+      if (b.style !== 'neon') {
+        var ctx = b.ctx;
+        ctx.save(); ctx.globalAlpha = .12; ctx.fillStyle = '#FFFFFF';
+        for (var r = 0; r < 4; r++) {
+          var x = 60 + r * 150 + rnd() * 40;
+          ctx.fill(poly([[x, 0], [x + 50, 0], [x + 140, SH], [x + 40, SH]]));
+        }
+        ctx.restore();
+      }
+      var floor = P();
+      floor.moveTo(0, 350); floor.bezierCurveTo(150, 330, 300, 365, 450, 340); floor.bezierCurveTo(520, 330, 570, 345, SW, 338);
+      floor.lineTo(SW, SH); floor.lineTo(0, SH); floor.closePath();
+      b.shape(floor, '#7E97C9', '#5FD3C6');
+      for (var w = 0; w < 7; w++) {
+        var sx = 30 + w * 85 + rnd() * 30, h = 90 + rnd() * 110, weed = P();
+        weed.moveTo(sx, 355);
+        weed.bezierCurveTo(sx - 25, 355 - h * .35, sx + 25, 355 - h * .65, sx - 5, 355 - h);
+        b.line(weed, 12, w % 2 ? '#2E9E6E' : '#3DBB85', '#3DEB9A', 5);
+      }
+      for (var k = 0; k < 16; k++) {
+        b.line(circle(rnd() * SW, rnd() * 300, 5 + rnd() * 9), 4, '#DDF3FF', '#9FE6FF', 0);
+      }
+      return { x: 300, y: 215, s: .95, rot: 0 };
+    },
+    steppe: function (b, rnd) {
+      b.background(['#8FB8FF', '#C7DAFB', '#EEF3FC']);
+      b.shape(circle(500, 80, 34), '#FFFFFF', null, false);
+      var hills = P();
+      hills.moveTo(0, 270); hills.bezierCurveTo(140, 240, 260, 262, 380, 248); hills.bezierCurveTo(480, 238, 560, 252, SW, 246);
+      hills.lineTo(SW, SH); hills.lineTo(0, SH); hills.closePath();
+      b.shape(hills, '#86C47A', '#7CF29A');
+      var ground = P();
+      ground.moveTo(0, 300); ground.bezierCurveTo(200, 288, 400, 306, SW, 292); ground.lineTo(SW, SH); ground.lineTo(0, SH); ground.closePath();
+      b.shape(ground, '#5FA453', null, false);
+      var colors = ['#E0383E', '#F06C9B', '#F4F7FC', '#C8243A'];
+      var glows = ['#FF4F7B', '#FF8AD8', '#FFFFFF', '#FF4F7B'];
+      for (var t = 0; t < 22; t++) {
+        var tx = rnd() * SW, ty = 305 + rnd() * 90, sc = .9 + (ty - 305) / 90 * .9;
+        if (tx > 190 && tx < 410 && ty < 360) continue; // перед героем цветы не сажаем
+        var stem = P(); stem.moveTo(tx, ty); stem.lineTo(tx, ty - 34 * sc);
+        b.line(stem, 5 * sc, '#2E7D3A', '#7CF29A', 0);
+        var ci = Math.floor(rnd() * colors.length), cup = P(), cy = ty - 34 * sc;
+        cup.moveTo(tx - 10 * sc, cy); cup.lineTo(tx - 11 * sc, cy - 18 * sc); cup.lineTo(tx - 4 * sc, cy - 11 * sc);
+        cup.lineTo(tx, cy - 20 * sc); cup.lineTo(tx + 4 * sc, cy - 11 * sc); cup.lineTo(tx + 11 * sc, cy - 18 * sc);
+        cup.lineTo(tx + 10 * sc, cy); cup.closePath();
+        b.shape(cup, colors[ci], glows[ci], false);
+      }
+      return { x: 300, y: 215, s: 1, rot: 0 };
+    },
+    elista: function (b, rnd) {
+      b.background(['#0A1440', '#1B2F7A', '#2B4F9D']);
+      for (var i = 0; i < 40; i++) b.shape(circle(rnd() * SW, rnd() * 190, 1.2 + rnd() * 2), '#F4F7FC', '#8FB8FF', false);
+      b.shape(circle(520, 70, 26), '#F4F7FC', '#F4F7FC');
+      var ground = P(); ground.rect(0, 345, SW, 60);
+      b.shape(ground, '#0A1440', '#8FB8FF');
+      // Золотая обитель Будды Шакьямуни: белые стены, три яруса золотых крыш, шпиль
+      var cx = 120, gold = '#E9C46A', goldGlow = '#FFD98A';
+      b.shape(poly([[cx - 95, 345], [cx + 95, 345], [cx + 80, 325], [cx - 80, 325]]), '#DDE6F5', '#F4F7FC');
+      b.shape(rrect(cx - 70, 215, 140, 112, 2), '#F4F7FC', '#F4F7FC');
+      for (var w = 0; w < 4; w++) b.shape(rrect(cx - 56 + w * 32, 240, 16, 50, 6), '#1D3A7A', '#8FB8FF', false);
+      b.shape(rrect(cx - 14, 296, 28, 30, 4), '#1D3A7A', null, false);
+      var tiers = [[215, 105, 26], [168, 80, 22], [128, 56, 18]];
+      tiers.forEach(function (t, k) {
+        var y = t[0], half = t[1], h = t[2];
+        b.shape(poly([[cx - half - 14, y + 4], [cx - half + 6, y - h], [cx + half - 6, y - h], [cx + half + 14, y + 4], [cx + half - 4, y - 4], [cx - half + 4, y - 4]]), gold, goldGlow);
+        if (k < 2) b.shape(rrect(cx - half + 22, y - h - 22, (half - 22) * 2, 22, 2), '#F4F7FC', '#F4F7FC');
+      });
+      b.shape(poly([[cx - 6, 112], [cx + 6, 112], [cx + 2, 70], [cx - 2, 70]]), gold, goldGlow);
+      b.shape(circle(cx, 66, 7), gold, goldGlow);
+      // окна домов вдали
+      for (var h2 = 0; h2 < 6; h2++) {
+        var hx = 260 + h2 * 58, hh = 30 + rnd() * 40;
+        b.shape(rrect(hx, 345 - hh, 44, hh, 1), '#13225E', '#2B4F9D', false);
+        if (b.style !== 'neon') b.shape(rrect(hx + 10, 345 - hh + 10, 8, 8, 1), '#F4F7FC', null, false);
+      }
+      return { x: 390, y: 220, s: .92, rot: 0 };
+    }
+  };
+
+  // ---------- герои ----------
+  // рисуются вокруг (0, 0), ростом около 220 точек сцены
+
+  var HEROES = {
+    cat: function (b) {
+      var tail = P(); tail.moveTo(55, 70); tail.bezierCurveTo(130, 80, 120, -10, 95, -20);
+      b.line(tail, 20, '#E8894A', '#FF9ED2');
+      b.shape(ellipse(0, 45, 72, 58), '#E8894A', '#FF9ED2');
+      b.shape(ellipse(0, 62, 38, 34), '#FBE3D0', null, false);
+      b.shape(poly([[-48, -62], [-38, -120], [-8, -92]]), '#E8894A', '#FF9ED2');
+      b.shape(poly([[48, -62], [38, -120], [8, -92]]), '#E8894A', '#FF9ED2');
+      b.shape(circle(0, -48, 55), '#E8894A', '#FF9ED2');
+      b.shape(ellipse(-20, -55, 11, 15), '#FFFFFF', '#8FB8FF', false);
+      b.shape(ellipse(20, -55, 11, 15), '#FFFFFF', '#8FB8FF', false);
+      b.shape(circle(-18, -52, 6), OUT, null, false);
+      b.shape(circle(22, -52, 6), OUT, null, false);
+      b.shape(poly([[-7, -30], [7, -30], [0, -22]]), '#F06C9B', '#FF9ED2', false);
+      var stripes = P(); stripes.moveTo(-20, -96); stripes.lineTo(-14, -82); stripes.moveTo(0, -100); stripes.lineTo(0, -84); stripes.moveTo(20, -96); stripes.lineTo(14, -82);
+      b.line(stripes, 5, '#B85F2A', null);
+    },
+    dragon: function (b) {
+      var tail = P(); tail.moveTo(-50, 70); tail.bezierCurveTo(-130, 95, -150, 30, -120, 10);
+      b.line(tail, 22, '#3FB37F', '#3DEB9A');
+      b.shape(poly([[-118, 18], [-142, -8], [-106, -2]]), '#6C5BD4', '#C9A8FF');
+      // крыло растёт из спины: острые «пальцы» и зубчатый край
+      b.shape(poly([[-20, 5], [-60, -70], [-95, -135], [-70, -98], [-40, -110], [-30, -80], [0, -96], [0, -62], [30, -70], [25, -10]]), '#7D6BE0', '#C9A8FF');
+      b.shape(ellipse(0, 45, 75, 55), '#3FB37F', '#3DEB9A');
+      b.shape(ellipse(10, 60, 40, 32), '#B6EBC9', null, false);
+      var neck = P(); neck.moveTo(35, 10); neck.bezierCurveTo(60, -20, 60, -50, 50, -62);
+      b.line(neck, 34, '#3FB37F', '#3DEB9A');
+      b.shape(ellipse(70, -72, 45, 30, .15), '#3FB37F', '#3DEB9A');
+      b.shape(poly([[45, -96], [52, -125], [64, -100]]), '#E9F5EC', '#FFFFFF');
+      b.shape(poly([[70, -98], [82, -126], [88, -96]]), '#E9F5EC', '#FFFFFF');
+      b.shape(circle(72, -80, 9), '#FFFFFF', '#FFFFFF', false);
+      b.shape(circle(75, -79, 5), OUT, null, false);
+      b.shape(circle(108, -66, 4), OUT, null, false);
+      b.shape(ellipse(-35, 98, 18, 10), '#2E8F63', '#3DEB9A');
+      b.shape(ellipse(40, 98, 18, 10), '#2E8F63', '#3DEB9A');
+      b.shape(poly([[115, -62], [150, -78], [140, -62], [158, -52], [118, -52]]), '#F06C9B', '#FF4F7B');
+    },
+    robot: function (b) {
+      var ant = P(); ant.moveTo(0, -100); ant.lineTo(0, -128);
+      b.line(ant, 6, '#DDE6F5', '#8FB8FF');
+      b.shape(circle(0, -132, 9), '#8FB8FF', '#8FB8FF');
+      b.shape(rrect(-70, -102, 140, 92, 26), '#DDE6F5', '#8FB8FF');
+      b.shape(rrect(-54, -86, 108, 60, 18), '#0A1338', null, false);
+      b.shape(rrect(-36, -68, 20, 22, 8), '#8FB8FF', '#8FB8FF', false);
+      b.shape(rrect(16, -68, 20, 22, 8), '#8FB8FF', '#8FB8FF', false);
+      var smile = P(); smile.moveTo(-14, -40); smile.quadraticCurveTo(0, -30, 14, -40);
+      b.line(smile, 4, '#8FB8FF', '#8FB8FF');
+      b.shape(rrect(-14, -12, 28, 12, 3), '#C3D2EC', null, false);
+      b.shape(rrect(-58, 0, 116, 92, 22), '#DDE6F5', '#8FB8FF');
+      b.shape(rrect(-34, 20, 68, 34, 10), '#0A1338', null, false);
+      b.shape(circle(-16, 37, 7), '#8FB8FF', '#8FB8FF', false);
+      b.shape(rrect(-2, 32, 26, 6, 3), '#8FB8FF', null, false);
+      var arms = P(); arms.moveTo(-60, 20); arms.quadraticCurveTo(-95, 30, -96, -12); arms.moveTo(60, 20); arms.quadraticCurveTo(92, 40, 96, 70);
+      b.line(arms, 14, '#C3D2EC', '#8FB8FF');
+      b.shape(circle(-96, -18, 12), '#8FB8FF', '#8FB8FF');
+      b.shape(rrect(-40, 92, 26, 26, 6), '#C3D2EC', '#8FB8FF');
+      b.shape(rrect(14, 92, 26, 26, 6), '#C3D2EC', '#8FB8FF');
+    },
+    saiga: function (b) {
+      // сайгак: коренастое тело, тонкие ноги, голова почти на уровне спины,
+      // главный признак: большой мягкий нос, свисающий вниз; короткие светлые рога с кольцами
+      var legs = P(); legs.moveTo(-55, 45); legs.lineTo(-58, 115); legs.moveTo(-30, 50); legs.lineTo(-28, 117); legs.moveTo(38, 50); legs.lineTo(36, 117); legs.moveTo(60, 44); legs.lineTo(64, 113);
+      b.line(legs, 10, '#B48E5E', '#FFD98A', 8);
+      b.shape(poly([[-84, 0], [-98, 10], [-84, 18]]), '#C9A77C', '#FFD98A');
+      b.shape(ellipse(0, 15, 88, 46), '#D8B98A', '#FFD98A');
+      b.shape(ellipse(0, 40, 66, 18), '#F2E6D2', null, false);
+      var horns = P(); horns.moveTo(96, -48); horns.bezierCurveTo(90, -70, 98, -82, 94, -100); horns.moveTo(110, -46); horns.bezierCurveTo(108, -68, 118, -80, 116, -98);
+      b.line(horns, 9, '#F2E6D2', '#FFFFFF', 8);
+      var rings = P(); for (var r = 0; r < 3; r++) { rings.moveTo(89, -62 - r * 12); rings.lineTo(100, -62 - r * 12); rings.moveTo(108, -60 - r * 12); rings.lineTo(119, -60 - r * 12); }
+      b.line(rings, 2.5, '#B48E5E', null, 0);
+      b.shape(ellipse(82, -36, 14, 7, -.5), '#C9A77C', '#FFD98A');
+      b.shape(ellipse(70, -12, 30, 30), '#D8B98A', '#FFD98A', false);
+      b.shape(ellipse(104, -24, 34, 26, .15), '#D8B98A', '#FFD98A');
+      b.shape(ellipse(136, -6, 24, 27, .1), '#C9A77C', '#FFD98A');
+      var nostril = P(); nostril.ellipse(146, 8, 5, 3, .4, 0, Math.PI * 2);
+      b.shape(nostril, OUT, null, false);
+      b.shape(circle(104, -32, 6.5), OUT, '#FFFFFF', false);
+      b.shape(circle(106, -34, 2), '#FFFFFF', null, false);
+      var hooves = P(); hooves.rect(-64, 111, 12, 9); hooves.rect(-34, 113, 12, 9); hooves.rect(30, 113, 12, 9); hooves.rect(58, 109, 12, 9);
+      b.shape(hooves, '#3B2A1A', null, false);
+    }
+  };
+
+  // ---------- сцена в точки ----------
+
+  var src = document.createElement('canvas'); src.width = SW; src.height = SH;
+  var small = document.createElement('canvas');
+
+  function paintScene(c, seed) {
+    var ctx = src.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, SW, SH);
+    var rnd = seeded(seed);
+    var b = new Brush(ctx, c.style);
+    var spot = PLACES[c.where](b, rnd);
+    ctx.save();
+    ctx.translate(spot.x + (rnd() - .5) * 30, spot.y + (rnd() - .5) * 16);
+    ctx.rotate(spot.rot + (rnd() - .5) * .08);
+    var flip = rnd() < .3 && c.where !== 'elista';
+    ctx.scale(spot.s * (flip ? -1 : 1), spot.s);
+    HEROES[c.who](b);
+    ctx.restore();
+  }
+
+  function sample(cols, rows, style) {
+    small.width = cols; small.height = rows;
+    var sctx = small.getContext('2d', { willReadFrequently: true });
+    sctx.imageSmoothingEnabled = true;
+    sctx.imageSmoothingQuality = 'high';
+    sctx.clearRect(0, 0, cols, rows);
+    sctx.drawImage(src, 0, 0, cols, rows);
+    var d = sctx.getImageData(0, 0, cols, rows).data;
+    var out = new Array(cols * rows);
+    for (var i = 0; i < cols * rows; i++) {
+      var r = d[i * 4], g = d[i * 4 + 1], bl = d[i * 4 + 2];
+      if (style === 'pixel') { r = Math.round(r / 64) * 64; g = Math.round(g / 64) * 64; bl = Math.round(bl / 64) * 64; }
+      if (style === 'neon') { var k = 1.25; r = Math.min(255, r * k); g = Math.min(255, g * k); bl = Math.min(255, bl * k); }
+      out[i] = [r, g, bl];
+    }
+    return out;
+  }
+
+  // ---------- анимация «из шума в картинку» ----------
+
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0, dpr = 1, cols = 0, rows = 0, cell = 0;
+  var dots = [], start = 0, raf = 0, lastStep = -1, current = null;
+
+  function grid(style) {
+    var base = W >= 560 ? 100 : 66;
+    if (style === 'pixel') base = Math.round(base / 2.2);
+    cols = base; rows = Math.round(base * SH / SW); cell = W / cols;
+  }
+
+  function layout() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  }
+
+  function prepare(c, seed) {
+    grid(c.style);
+    paintScene(c, seed);
+    var colors = sample(cols, rows, c.style);
+    var rnd = seeded(seed * 7 + 3);
+    dots = colors.map(function (col, i) {
+      return {
+        x: (i % cols + .5) * cell, y: (Math.floor(i / cols) + .5) * cell,
+        t: col,
+        n: [40 + rnd() * 200, 50 + rnd() * 190, 110 + rnd() * 145],
+        jx: (rnd() - .5) * 2, jy: (rnd() - .5) * 2,
+        d: rnd() * .35
+      };
+    });
+    current = c;
+  }
+
+  function frame(now) {
+    var p = reduce ? 1 : Math.min(1, (now - start) / DURATION);
+    var step = Math.min(STEPS, Math.floor(p * STEPS + .0001));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = current.style === 'neon' ? '#03081C' : '#060B2A';
+    ctx.fillRect(0, 0, W, H);
+    var square = current.style === 'pixel';
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i];
+      // каждая точка проходит путь от шума к своему цвету; шум убывает шагами, как в диффузионной модели
+      var a = ease(Math.max(0, Math.min(1, (p - d.d * .6) / (1 - d.d * .6))));
+      var q = Math.round(a * STEPS) / STEPS;
+      a = a * .5 + q * .5;
+      var r = d.n[0] + (d.t[0] - d.n[0]) * a, g = d.n[1] + (d.t[1] - d.n[1]) * a, bl = d.n[2] + (d.t[2] - d.n[2]) * a;
+      var off = (1 - a) * cell * 2.4;
+      var x = d.x + d.jx * off, y = d.y + d.jy * off;
+      ctx.fillStyle = 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (bl | 0) + ')';
+      if (square) {
+        var s = cell * (.55 + .37 * a);
+        ctx.fillRect(x - s / 2, y - s / 2, s, s);
+      } else {
+        ctx.beginPath();
+        ctx.arc(x, y, cell * (.3 + .2 * a), 0, 6.2832);
+        ctx.fill();
+      }
+    }
+    if (step !== lastStep) {
+      lastStep = step;
+      stepEl.textContent = step >= STEPS ? 'Готово: ' + STEPS + ' шага от шума до картинки'
+        : step === 0 ? 'Шаг 0 из ' + STEPS + ': пока только шум' : 'Шаг ' + step + ' из ' + STEPS + ': убираю шум';
+    }
+    if (p < 1) raf = requestAnimationFrame(frame);
+    else { button.disabled = false; button.textContent = 'Нарисовать ещё раз'; }
+  }
+
+  function draw() {
+    var c = choice();
+    cancelAnimationFrame(raf);
+    layout();
+    prepare(c, (Date.now() % 100000) + 1);
+    canvas.setAttribute('aria-label', 'Картинка из звёздных точек по запросу «' + promptText(c) + '»');
+    lastStep = -1;
+    button.disabled = !reduce;
+    start = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  // ---------- строка запроса печатается, как в чате ----------
+
+  var typing = 0;
+  function typePrompt(instant) {
+    var text = promptText(choice());
+    clearInterval(typing);
+    if (instant || reduce) { promptEl.textContent = text; return; }
+    var shown = promptEl.textContent, common = 0;
+    while (common < shown.length && shown[common] === text[common]) common++;
+    var pos = common;
+    promptEl.textContent = text.slice(0, pos);
+    typing = setInterval(function () {
+      pos++;
+      promptEl.textContent = text.slice(0, pos);
+      if (pos >= text.length) clearInterval(typing);
+    }, 22);
+  }
+
+  form.addEventListener('change', function () {
+    typePrompt(false);
+    if (button.textContent !== 'Нарисовать') button.textContent = 'Нарисовать';
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    typePrompt(true);
+    draw();
+    // на телефоне кнопка ниже картинки: показываем, как она рисуется
+    var box = canvas.getBoundingClientRect();
+    if (box.top < 0 || box.bottom > window.innerHeight) {
+      canvas.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+    }
+    if (window.ym && window.YM_ID) window.ym(window.YM_ID, 'reachGoal', 'draw_demo');
+  });
+
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (!current || canvas.clientWidth === W) return;
+      layout(); prepare(current, 1 + (Date.now() % 100000)); start = performance.now() - DURATION; frame(performance.now());
+    }, 150);
+  });
+
+  typePrompt(true);
+  // первая картинка рисуется сама, когда блок показался на экране
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { io.disconnect(); draw(); }
+    }, { threshold: .35 });
+    io.observe(canvas);
+  } else {
+    draw();
+  }
 })();
 
 </script>
